@@ -1,1 +1,109 @@
+<html>
+    <body onload="init()">
+        <canvas id="cnvs" width="400" height="400" style="position:absolute;top:10%;left:10%;border:2px solid;"></canvas>
+        <div id="COLORS"  style="position:absolute;top:12%;left:41%;">Color</div>
+        <div id="red"     style="position:absolute;top:15%;left:41%;width:10px;height:10px;background:red;"    onclick="color(this)"></div>
+        <div id="green"   style="position:absolute;top:15%;left:42%;width:10px;height:10px;background:green;"  onclick="color(this)"></div>
+        <div id="blue"    style="position:absolute;top:15%;left:43%;width:10px;height:10px;background:blue;"   onclick="color(this)"></div>
+        <div id="black"   style="position:absolute;top:17%;left:41%;width:10px;height:10px;background:black;"  onclick="color(this)"></div>
+        <div id="yellow"  style="position:absolute;top:17%;left:42%;width:10px;height:10px;background:yellow;" onclick="color(this)"></div>
+        <div id="cyan"    style="position:absolute;top:17%;left:43%;width:10px;height:10px;background:cyan;"   onclick="color(this)"></div>
+        <div id="ERASER"  style="position:absolute;top:20%;left:41%;">Eraser</div>
+        <div id="white"   style="position:absolute;top:23%;left:42%;width:15px;height:15px;background:white;border:2px solid;" onclick="color(this)"></div>
+        <div id="WIDTH"   style="position:absolute;top:27%;left:41%;">Width</div>
+        <div id="1"       style="position:absolute;top:30%;left:41.4%;width:1px;height:10px;background:gray;"  class='wdth' onclick="width(this)"></div>
+        <div id="2"       style="position:absolute;top:30%;left:42.4%;width:2px;height:10px;background:black;" class='wdth' onclick="width(this)"></div>
+        <div id="4"       style="position:absolute;top:30%;left:43.4%;width:4px;height:10px;background:gray;"  class='wdth' onclick="width(this)"></div>
+        <div id="6"       style="position:absolute;top:32%;left:41%;  width:6px;height:10px;background:gray;"  class='wdth' onclick="width(this)"></div>
+        <div id="8"       style="position:absolute;top:32%;left:42%;  width:8px;height:10px;background:gray;"  class='wdth' onclick="width(this)"></div>
+        <div id="10"      style="position:absolute;top:32%;left:43%;  width:10px;height:10px;background:gray;" class='wdth' onclick="width(this)"></div>
+        <img id="saveImg" style="position:absolute;top:10%;left:52%; display:none;">
+        <input type="button" value="save"  id="btn" size="30" style="position:absolute;top:65%;left:10%;" onclick="save()">
+        <input type="button" value="clear" id="clr" size="23" style="position:absolute;top:65%;left:15%;" onclick="erase()">
+    </body>
 
+    <script type="text/javascript">
+    var prevX = 0,
+        currX = 0,
+        prevY = 0,
+        currY = 0;
+        
+    var clr = "black";                                          //line color. initial value=black
+    var wth = 2;                                                //line width. initial value=2px
+    var mouse_pressed = false;
+    
+    function init() {                                           //called on page load
+        canvas = document.getElementById('cnvs');               //access the canvas html element
+        ctx    = canvas.getContext("2d");                       //set canvas draw type to 2d (not 3d)
+        canWth = canvas.width;                                  //get the full canvas width
+        canHgt = canvas.height;                                 //get the full canvas height
+    
+        canvas.addEventListener("mousemove", function (e) {findxy(e,'move')}, false);      //set up event handler, and pass "move"
+        canvas.addEventListener("mousedown", function (e) {findxy(e,'down')}, false);      //set up event handler, and pass "down"
+        canvas.addEventListener("mouseup",   function (e) {findxy(e,'up'  )}, false);      //set up event handler, and pass "up"
+        canvas.addEventListener("mouseout",  function (e) {findxy(e,'out' )}, false);      //set up event handler, and pass "out"
+    }
+    
+    function color(obj) {
+        clr = obj.id;                                               //set the color to the value of html element id attribute
+        if (clr == "white")
+            document.getElementById("ERASER").style.background = "lightgray";   //highlight that eraser is in use
+        else
+            document.getElementById("ERASER").style.background = "white";       //turn eraser highlighting off               
+    }
+
+    function width(obj) {
+        wth = obj.id;                                               //set the width to the value of html element id attribute
+        var elems = document.getElementsByClassName('wdth');        //get all html elements with class=wdth
+        for (elem of elems)                                         //loop thru all elements 
+            elem.style.backgroundColor='gray';                      //set them all to gray
+        obj.style.backgroundColor='black';                          //set the chosen one to black                                                     
+    }
+      
+    function save() {
+        var imgURL = canvas.toDataURL();                                    //convert the canvas to ".png" image URL
+        document.getElementById("saveImg").src = imgURL;                    //load the image URL into the saveImg 
+        document.getElementById("saveImg").style.border  = "2px solid";     //set border to 2px    
+        document.getElementById("saveImg").style.display = "inline";        //display the saved image
+    }
+
+    function erase() {
+        var ok = confirm("Want to clear");
+        if (ok) {
+            ctx.clearRect(0, 0, canWth, canHgt);                            //clear the entire current canvas 
+            document.getElementById("saveImg").style.display = "none";      //hide the saved image
+        }
+    }
+     
+    function findxy(e, action) {                                //event handler
+        if (action == 'down') {
+            mouse_pressed = true;                               //activate begin draw
+            currX = e.clientX - canvas.offsetLeft;              //e.clientX is mouse curr position on screen 
+            currY = e.clientY - canvas.offsetTop;               //determine mouse curr X,Y positions within the canvas    
+        }
+        if (action == 'up' || action == "out") {
+            mouse_pressed = false;                              //terminate draw
+        }
+        if (action == 'move') {
+            if (mouse_pressed) {                                //only draw when mouse has previouly been pressed
+                prevX = currX;                                  //save current X,Y position 
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;          //e.clientX is mouse curr position on screen                    
+                currY = e.clientY - canvas.offsetTop;           //determine mouse curr X,Y positions within the canvas
+                drawLine();                                     //call draw line function (below)
+            }
+        }
+    }
+    
+    function drawLine() {
+        ctx.beginPath();                                        //start a line path
+        ctx.moveTo(prevX, prevY);                               //line starting position x,y
+        ctx.lineTo(currX, currY);                               //line ending position x,y
+        ctx.strokeStyle = clr;                                  //set line color 
+        ctx.lineWidth   = wth;                                  //set line width                                     
+        ctx.stroke();                                           //draw
+        ctx.closePath();                                        //close the path
+    }
+ 
+    </script>
+</html>
