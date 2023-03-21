@@ -1,0 +1,1 @@
+Draw is a simple graphic editor written for the web. This drawing plugin uses HTML5 Canvas supported by all modern browsers (Chrome, Firefox, Opera, Internet Explorer...). You can use any device to draw on "sketchpad". Drawen sketches you can export to jepg/png or save as .json history file.
